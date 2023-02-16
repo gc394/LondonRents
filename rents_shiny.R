@@ -81,31 +81,10 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  # read and wrangle data
+  # read data
   
   rents = readxl::read_xlsx(
-    path = 'local-authority-rents-borough.xlsx', 
-    sheet = "Local Authority Rents"
-    )
-  
-  rents = rents %>% 
-    # New Code identifies London boroughs
-    tidyr::drop_na('New Code') %>%
-    dplyr::select(-'Code', -'New Code') %>%
-    janitor::clean_names() %>%
-    dplyr::mutate(across(-area, ~round(as.numeric(.x), 2))) %>%
-    tidyr::pivot_longer(
-      cols = -area, 
-      names_to = 'financial_year', 
-      values_to = 'index'
-      ) %>%
-    dplyr::mutate(
-      financial_year = gsub(pattern = 'x', replacement = '', x = financial_year)
-      ) %>%
-    dplyr::rename(
-      'Index' = 'index',
-      'Financial Year' = 'financial_year',
-      'Borough' = 'area'
+    path = 'local-authority-rents-borough.xlsx'
     )
   
   # updates
@@ -187,7 +166,7 @@ server <- function(input, output, session) {
         geom_bar(stat = 'Identity') +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
       
-    plotly::ggplotly(gg,  tooltip = c('Borough', 'Financial Year', 'Index'))
+    plotly::ggplotly(gg,  tooltip = c('Borough', 'Index'))
     
   })
   
